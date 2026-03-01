@@ -253,8 +253,38 @@ app.get('/api/contacts', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch contacts' });
   }
 });
+// Get all contact submissions
+app.get('/api/contacts', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ error: 'Failed to fetch contacts' });
+  }
+});
+
+// 🔧 DEBUG: List all tables
+app.get('/api/debug-tables', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public');
+    
+    res.json({ tables: data, error });
+  } catch (e) {
+    res.json({ error: e.message });
+  }
+});
 
 // Keep this at the very end
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+

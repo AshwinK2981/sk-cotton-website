@@ -1346,10 +1346,11 @@ useEffect(() => {
   setUploading(true);
   
   try {
-    const uploadFormData = new FormData();  // Renamed to avoid conflict
+    const uploadFormData = new FormData();
     uploadFormData.append('image', file);
     
-    const res = await fetch('http://localhost:5175/api/upload-hero-image', {
+    // ✅ Fixed: Added missing 'const res = await' and closed the fetch properly
+    const res = await fetch(`${API_BASE}/api/upload-hero-image`, {      
       method: 'POST',
       body: uploadFormData
     });
@@ -1358,7 +1359,7 @@ useEffect(() => {
     console.log('Upload response:', data);
     
     if (data.url) {
-      // Update the state formData (your collection data)
+      // Update the state formData with the permanent URL
       setFormData(prev => ({ ...prev, image: data.url }));
       alert('✅ Image uploaded successfully! It will now be permanent.');
     }

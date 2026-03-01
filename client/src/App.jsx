@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import CollectionsAll from './pages/CollectionsAll';
-const API_BASE = 'http://localhost:5175';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5175';
 // ===== API FUNCTIONS =====
 async function fetchCollections() {
   const res = await fetch(`${API_BASE}/api/collections`);

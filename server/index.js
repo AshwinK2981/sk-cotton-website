@@ -7,21 +7,21 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 5175;
 
+const supabaseUrl = process.env.SUPABASE_URL || 'https://psfjdkiqjovxxrwppqop.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || 'sb_publishable_vAyf7WQ8y5WqB0FBg1J0zA_kCAm1rA-';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 // Supabase configuration - USING MY ACTUAL CREDENTIALS
 app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
-    'https://sk-cotton-website-mhrh.vercel.app',  // Your Vercel URL
-    'https://sk-cotton-website-api.onrender.com'   // Your Render URL
+    'https://sk-cotton-website-mhrh.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 app.options('*', cors());
-
 app.use(express.json());
 
 // ===== DATABASE ROUTES =====

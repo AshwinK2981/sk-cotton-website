@@ -269,27 +269,7 @@ app.get('/api/contacts', async (req, res) => {
   }
 });
 
-// 🔧 DEBUG: Test collections table directly
-app.get('/api/debug-collections', async (req, res) => {
-  try {
-    // Try to get just one record
-    const { data, error } = await supabase
-      .from('collections')
-      .select('*')
-      .limit(1);
-    
-    res.json({ 
-      success: !error,
-      data: data,
-      error: error,
-      message: error ? error.message : 'Collections table accessible'
-    });
-  } catch (e) {
-    res.json({ error: e.message });
-  }
-});
-
-// 🔧 DEBUG: List all tables using raw SQL
+// 🔧 DEBUG: List all tables
 // 🔧 DEBUG: Test collections table with different name formats
 app.get('/api/test-collections', async (req, res) => {
   try {
@@ -345,7 +325,23 @@ app.get('/api/test-collections', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+// 🔧 DEBUG: See actual collections data
+app.get('/api/debug-collections-data', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('collections')
+      .select('*');
+    
+    res.json({
+      success: !error,
+      count: data?.length || 0,
+      data: data,
+      error: error
+    });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
 // Keep this at the very end
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

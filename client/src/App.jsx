@@ -1453,19 +1453,30 @@ useEffect(() => {
   }
 };
   
-  const handleUpdate = () => {
-    if (!formData.name.trim()) {
-      alert('Collection name is required');
-      return;
-    }
+ const handleUpdate = async () => {
+  if (!formData.name.trim()) {
+    alert('Collection name is required');
+    return;
+  }
+  
+  try {
+    // ✅ Call the API to update database
+    await updateCollection(editingId, formData);
     
-    const updatedCollections = collections.map(col => 
-      col.id === editingId ? { ...col, ...formData, updatedAt: new Date().toISOString() } : col
+    // ✅ Then update local state
+    onUpdateCollections(
+      collections.map(col => 
+        col.id === editingId ? { ...col, ...formData } : col
+      )
     );
     
-    onUpdateCollections(updatedCollections);
     resetForm();
-  };
+    alert('Collection updated successfully!');
+  } catch (error) {
+    console.error('Error updating collection:', error);
+    alert('Failed to update collection. Make sure server is running.');
+  }
+};
   
   const handleEdit = (collection) => {
     setEditingId(collection.id);
@@ -1480,19 +1491,42 @@ useEffect(() => {
     });
   };
   
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this collection?')) {
-      const filteredCollections = collections.filter(col => col.id !== id);
-      onUpdateCollections(filteredCollections);
+  const handleDelete = async (id) => {
+  if (window.confirm('Are you sure you want to delete this collection?')) {
+    try {
+      // ✅ Call API to delete from database
+      await deleteCollection(id);
+      
+      // ✅ Then update local state
+      onUpdateCollections(collections.filter(col => col.id !== id));
+      if (editingId === id) resetForm();
+      alert('Collection deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      alert('Failed to delete collection. Make sure server is running.');
     }
-  };
+  }
+};
   
-  const handleToggleStatus = (id) => {
-    const updatedCollections = collections.map(col => 
-      col.id === id ? { ...col, isActive: !col.isActive } : col
+ const handleToggleStatus = async (id) => {
+  const collection = collections.find(c => c.id === id);
+  if (!collection) return;
+  
+  const updated = { ...collection, isActive: !collection.isActive };
+  
+  try {
+    // ✅ Call API to update database
+    await updateCollection(id, updated);
+    
+    // ✅ Then update local state
+    onUpdateCollections(
+      collections.map(col => col.id === id ? updated : col)
     );
-    onUpdateCollections(updatedCollections);
-  };
+  } catch (error) {
+    console.error('Error toggling status:', error);
+    alert('Failed to update status. Make sure server is running.');
+  }
+};
   
   const resetForm = () => {
     setEditingId(null);

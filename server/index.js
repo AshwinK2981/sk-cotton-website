@@ -269,17 +269,80 @@ app.get('/api/contacts', async (req, res) => {
   }
 });
 
-// 🔧 DEBUG: List all tables
-app.get('/api/debug-tables', async (req, res) => {
+// 🔧 DEBUG: Test collections table directly
+app.get('/api/debug-collections', async (req, res) => {
   try {
+    // Try to get just one record
     const { data, error } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public');
+      .from('collections')
+      .select('*')
+      .limit(1);
     
-    res.json({ tables: data, error });
+    res.json({ 
+      success: !error,
+      data: data,
+      error: error,
+      message: error ? error.message : 'Collections table accessible'
+    });
   } catch (e) {
     res.json({ error: e.message });
+  }
+});
+
+// 🔧 DEBUG: List all tables using raw SQL
+// 🔧 DEBUG: Test collections table with different name formats
+app.get('/api/test-collections', async (req, res) => {
+  try {
+    const results = [];
+    
+    // Test 1: Regular 'collections'
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .select('count')
+        .limit(1);
+      results.push({ 
+        test: "collections", 
+        success: !error, 
+        error: error?.message || null 
+      });
+    } catch (e) {
+      results.push({ test: "collections", success: false, error: e.message });
+    }
+    
+    // Test 2: With quotes '"collections"'
+    try {
+      const { data, error } = await supabase
+        .from('"collections"')
+        .select('count')
+        .limit(1);
+      results.push({ 
+        test: '"collections"', 
+        success: !error, 
+        error: error?.message || null 
+      });
+    } catch (e) {
+      results.push({ test: '"collections"', success: false, error: e.message });
+    }
+    
+    // Test 3: Capital C 'Collections'
+    try {
+      const { data, error } = await supabase
+        .from('Collections')
+        .select('count')
+        .limit(1);
+      results.push({ 
+        test: "Collections", 
+        success: !error, 
+        error: error?.message || null 
+      });
+    } catch (e) {
+      results.push({ test: "Collections", success: false, error: e.message });
+    }
+    
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -287,4 +350,3 @@ app.get('/api/debug-tables', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
